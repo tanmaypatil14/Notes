@@ -1,0 +1,1068 @@
+1)How you map database column with entity.
+
+In hibernate we can map a model object into a relation/table with the help of @Entity annotation.
+@Entity - to specifiy class is entity
+@Table - to add name of database table to entity
+@Id - defines a primary key
+@GeneratedValue(strategy=GenerationType.AUTO) - Auto generation of ID
+@Column - Column name
+@Embedded
+@Embeddable
+
+
+Embeddded Object
+
+In a situation where the member variable of a model object is another object itself, then this encapsulated object is merged into the embedded model class. The @Embedded and @Embeddable annotation are used to manage this type of relationship.
+
+@Entity
+public class Employee{
+    @Id  @GeneratedValue(strategy=GenerationType.AUTO)
+    private long empId;
+	@Column("Employee_Name")
+    private String empName;    
+    @Embedded
+    private Address address;
+    private String 
+    private float salary;    
+…
+}
+ 
+@Embeddable
+public class Address{
+    private String street;
+    private String province;    
+    private String country;
+    private String zip;
+…
+}
+
+2)How you manage relationships in hibernate.
+
+i. One-to-One
+
+To establish a one-to-one association between two separate object models we use @OneToOne annotation as follows. Here in this example we assume that each employee works in one department, so the cardinality ratio of the relationship is 1:1.
+
+@Entity
+public class Employee{
+    @Id  @GeneratedValue(strategy=GenerationType.AUTO)
+    private long empId;    
+…
+   @OneToOne
+   private Department department;
+}
+ 
+@Entity
+public class Department{
+    @Id  @GeneratedValue
+    private long empId;    
+…   
+}
+
+ii. one to many
+One-to-Many or Many-to-One association are basically same, seen from alternate perspectives of owning and subordinate entities. The annotation used for this type of relationship is @OneToMany. In the example below we assume that each employee can work in more than one project, so the degree of relationship is 1:N.
+@Entity
+public class Employee{
+    @Id  @GeneratedValue(strategy=GenerationType.AUTO)
+    private long empId;    
+…
+   @OneToMany
+   @JoinTable("Employee_Project") // a new Employee_Project table will be created to provide mapping
+   private Collection<Project> projects=new ArrayList<>();
+}
+ 
+@Entity
+public class Project{
+    @Id  @GeneratedValue(strategy=GenerationType.AUTO)
+    private long projectId;    
+…
+}
+
+iii. Many-to-One
+Reverse of one to many. Many project assigned to one employee
+@Entity
+public class Employee{
+    @Id  @GeneratedValue(strategy=GenerationType.AUTO)
+    private long empId;    
+}
+
+@Entity
+public class Project{
+    @Id  @GeneratedValue(strategy=GenerationType.AUTO)
+    private long projectId;    
+	
+	@ManyToOne
+	private Employee employee;
+…
+}
+
+iv. Many to Many
+
+When more than one entity instance is associated with multiple instances of a separate entity, The relation degree becomes N:M. This type of relationship is established in Hibernate with the help of @ManyToMany annotation. For example, the relationship between Book and Author; more than one author may write one or more books; alternatively, many books are written by one or more author.
+
+@Entity
+public class Book{
+    @Id  @GeneratedValue(strategy=GenerationType.AUTO)
+    private long isbn;    
+…
+   @ManyToMany(mappedBy=”books”)   
+   private Collection<Author> authors=new ArrayList<>();
+}
+ 
+@Entity
+public class Author{
+    @Id  @GeneratedValue(strategy=GenerationType.AUTO)
+    private long authorId;    
+…   
+@ManyToMany
+   private Collection<Book> books=new ArrayList<>();
+}
+
+3)What is transaction and some scenarios on it.
+
+A transaction simply represents a unit of work. In such case, if one step fails, the whole transaction fails (which is termed as atomicity). A transaction can be described by ACID properties (Atomicity, Consistency, Isolation and Durability).
+
+it is better to rollback the transaction if any exception occurs, so that resources can be free.
+
+void begin() starts a new transaction.
+void commit() ends the unit of work unless we are in FlushMode.NEVER.
+void rollback() forces this transaction to rollback.
+
+Session session = null;  
+Transaction tx = null;  
+  
+try {  
+session = sessionFactory.openSession();  
+tx = session.beginTransaction();  
+//some action  
+  
+tx.commit();  
+  
+}catch (Exception ex) {  
+ex.printStackTrace();  
+tx.rollback();  
+}  
+finally {session.close();}  
+
+
+4)What is controller and rest controller
+@Controller is used to mark classes as Spring MVC Controller.
+
+@RestController annotation is a special controller used in RESTful Web services.
+@RestController = @Controller + @ResponseBody
+
+@RestController annotation indicates that class is a controller where @RequestMapping methods assume @ResponseBody semantics by default.
+
+In @RestController, we don’t need to use @ResponseBody on every handler method.
+
+
+
+5)What are different HTTP methods
+
+PUT - update, POST- add/save/create, GET- fetch, DELETE -delete,PATCH - partial update
+
+6)Can we perform save operation using put and modify using post
+
+yes we can. But not recomended
+
+7)What is difference between service and repository and scenario question
+controller - methods for handing http requests 
+service - business logic like validations, calculations etc
+repository - database CRUD Operations
+
+8)How annotation is scanned in spring boot app
+
+With Spring, we use the @ComponentScan annotation along with the @Configuration annotation to specify the packages that we want to be scanned. @ComponentScan without arguments tells Spring to scan the current package and all of its sub-packages.
+
+Spring Boot automatically configures your application based on the dependencies you have added to the project by using @EnableAutoConfiguration annotation. 
+For example, if MySQL database is on your classpath, but you have not configured any database connection, then Spring Boot auto-configures an in-memory database.
+
+The entry point of the spring boot application is the class contains @SpringBootApplication annotation and the main method.
+@SpringBootApplication = @SpringBootConfiguration + @EnableAutoConfiguration + @ComponentScan
+Spring Boot automatically scans all the components included in the project by using @ComponentScan annotation.
+
+2.7.3 - spring-boot-starter-parent
+
+
+9)List and Set question
+
+List - ArrayList, LinkedList,
+Set - 
+
+10)Write a program to write to store unique element and some question on it like performance depends on program
+
+List<Integer> UniqueNumbers = Numbers.stream().distinct().collect(Collectors.toList());
+
+11)What is stream and some scenario question
+Stream is used to process objects of collection. It is a special iterator class that allows processing collection objects in a functional manner.
+
+stream creation - 
+	Stream s = collectionObj.stream(); // using collection object
+	
+	Stream.of(1,2,3,4,5,6,7).forEach(i-> syso(i)); // using of method with variable arguments 
+	
+Intermediate operator(Lazy loaded, only load with terminal operators) 
+	filter, map, flatmap, sorted, distinct, peek()- used for debug ,limit, skip
+Terminate operator 
+	forEach, collect, count, max, min , toArray , reduce - is used to combine elements of stream and produce a single value
+
+//candidate with max experience
+candidates.stream().filter(c->c.getCity().equalsIgnoreCase("Pune")).forEach(System.out::println);
+
+// increase experience by 1 year
+candidates.stream().map(c -> {
+			c.setYearsOfExperience(c.getYearsOfExperience()+1);
+			return c;
+		}).forEach(c-> System.out.println(c));
+		
+// sorting
+Employee emp= empList.stream().sorted((emp1,emp2) -> emp1.getAge()>emp2.getAge()?-1:1).findFirst().get();
+
+		
+Parallel Stream - It is meant to utilize multiple core of processor
+
+
+12)Java 8 features
+
+## Java 8 New Features:
+
+1. Lambda Expression
+2. Stream API
+3. Default and static methods in Interfaces
+4. Functional interfaces
+5. Optional class
+6. New Date and Time API - LocalDate.now()
+7. Method reference, Constructor reference
+
+13)What is lamda expression
+
+Lambda expression is a anonymous function(without name,return type and access modifier) ->
+
+public void add (int a,int b)
+{
+	System.out.println(a+b);
+}
+
+(a,b) -> System.out.println(a+b);
+
+14)Functional interface
+
+Functional Interface are interface with single abstract method.
+It can have any number of static and default methods.
+
+@FunctionalInterface - annotation on top of interface 
+
+eg Comparable , Runnable, Consumer, Predicate, Supplier, Function
+
+i. Predicate - It is a  predefined functional interface in java.util.function package with test abstract method.
+	public boolean test(T t);
+	
+	it is used to check boolean condition and code reusability.
+	
+	Predicate<String> checkLength = s-> s.length()>5;
+	Syso("The length is string is greater than 5 "+ checkLength.test("ABCDEF"));
+	
+	Predicate Joining - combining multiple conditions
+	predicate1.and(predicate2).test(arg);
+	predicate1.or(predicate2).test(arg);
+	predicate1.negate().test(arg)
+	
+	BiPredicate<Integer,String> checkLength = (i,s) -> s.length()>i;
+	
+ 
+ ii. Function -  It is a predefined functional interface in java.util.function package with apply abstract method.
+	public R apply(T t);
+	
+	It is used to perform some operations on input and return a output of any type
+	
+	Function<Integer,Integer> squareMe = i -> i*i;
+	syso("Square of 5 is "+ squareMe.apply(5));
+	
+	Functional chaining
+	f1.andThen(f2).apply(input) - first f1 is apply and then f2
+	f1.compose(f2).apply(input) - first f2 is apply and then f1 
+ 
+ iii. Consumer - It is a predefined functional interface in java.util.function package with accept abstract method.
+	public void accept(T t);
+	
+	It is used to consume input and perform some operation and return type is void.
+	
+	Consumer<Integer> squareMe = i -> syso("Square of 5 is "+ i*i);
+	squareMe.accept(5);
+	
+	Consumer Chaining
+	c1.andThen(c2).accept(input) - first f1 is accept and then f2
+	no compose method in consumer
+	
+ iv. Supplier - It is a predefined functional interface in java.util.function package with get abstract method.
+	public T get();
+	
+	It is used to supply output with any return type and input type is void.
+
+	Supplier<Date> currentDate = () -> new Date();
+	syso(currentDate.get());
+	
+	Supplier Chaining has no chaining as it has no input. 
+	
+Summary
+		Predicate<T> -> boolean test(T t) -> return boolean
+		Function<T,R> -> R apply(T t) -> return anything
+		Consumer<T> -> accept(T t) -> return nothing
+		Supplier<R> -> R get() -> return anything
+
+15)Optional and some cross questions
+
+Optional class is used to handle null values and expections occurring due to null values. 
+isPresent(), isEmpty() - to check null values
+
+Optional.of(not null arg) -, Optional.ofNullable(arg can be null) - to create optional
+
+eg CRUD Operations
+
+Optional<Employee> e = repo.findById(id);
+
+e.ifPresent(e-> syso("Employee is present "+e));
+
+e.ifPresentOrElse(e-> syso("Employee is present "+e),()-> syso("Employee Not Present"));
+
+
+e.isPresent(){
+	return new ResponseEntity( e.get(),HttpStatus.OK);
+}
+else{
+	return new ResponseEntity( "No Employee Found for given id",HttpStatus.NOT_FOUND);
+}
+
+16)Default methods and some scenario based
+
+Default Method is a way to add new methods to a interface without affecting implementing classes.
+
+Diamond Problem- Due to multiple inheritence and default method introduction in 1.8 Diamond problem can occur.
+
+we need to override default method in implementing class to solve this problem 
+
+InterfaceName.super.methodName();
+
+Static method in interface can be used as utility methods and can be called be interfaceName directly.
+Static Method in interface belongs to only the interface and not child classes.
+InterfaceName.staticMethod();
+
+17)How to apply security for API in spring boot
+Spring Security
+Basic Auth - username and password
+JWT token based authorization - JSON Web Token
+
+Set the HTTP header Authorization value as Bearer jwt_token.
+
+
+
+18)How to handle exceptions in spring boot and normal java
+
+public class ProductNotfoundException extends RuntimeException {
+   private static final long serialVersionUID = 1L;
+}
+
+The Controller Advice class to handle the exception globally is given below. We can define any Exception Handler methods in this class file.
+
+@ControllerAdvice
+public class ProductExceptionController {
+   @ExceptionHandler(value = ProductNotfoundException.class)
+   public ResponseEntity<Object> exception(ProductNotfoundException exception) {
+      return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
+   }
+}
+
+19)Create custom exception
+
+public class ProductNotfoundException extends RuntimeException {
+   private static final long serialVersionUID = 1L;
+}
+
+20)What is checked and unchecked exception
+
+In Java, an exception is an event that disrupts the normal flow of the program. It is an object which is thrown at runtime.
+
+1) Checked Exception
+The classes that directly inherit the Throwable class except RuntimeException and Error are known as checked exceptions. For example, IOException, SQLException,ClassNotFoundException etc. Checked exceptions are checked at compile-time.
+
+2) Unchecked Exception
+The classes that inherit the RuntimeException are known as unchecked exceptions. For example, ArithmeticException, NullPointerException, ArrayIndexOutOfBoundsException,NumberFormatException etc. Unchecked exceptions are not checked at compile-time, but they are checked at runtime.
+
+3) Error
+Error is irrecoverable. Some example of errors are OutOfMemoryError, VirtualMachineError, AssertionError etc.
+
+21)Sorting  alogo
+
+22)How you will write test case for controller 
+
+23)encapsulation and abstraction, explain with code
+
+The process of binding data and corresponding methods (behavior) together into a single unit is called encapsulation.
+encapsulation is a programming technique that binds the class members (variables and methods) together and prevents them from being accessed by other classes.
+
+public class Employee {
+
+	private String name;
+	private int age;
+
+	public int getAge() {
+	return age;
+	}
+
+	public String getName() {
+	return name;
+	}
+
+	public void setAge(int newAge) {
+		age = newAge;
+	}
+
+	public void setName(String newName) {
+		name = newName;
+	}
+}
+
+Abstraction is a process of hiding the implementation details and showing only functionality to the user.
+Abstraction lets you focus on what the object does instead of how it does it.
+
+Ways to achieve Abstraction
+There are two ways to achieve abstraction in java
+
+Abstract class (0 to 100%)
+Interface (100%)
+
+abstract class Salary {
+	abstract double calculate();
+}
+
+class EmpSalary extends Salary {
+	double calculate(){
+		//some logic for salary calculation of employee of company
+	}
+}
+
+class ContractEmpSalary extends Salary {
+	double calculate(){
+		//some logic for salary calculation of contract employee working
+	}
+}
+
+class TestAbstraction{  
+public static void main(String args[]){  
+Salary s=new EmpSalary();//In a real scenario, object is provided through method, e.g., getSalary("Employee") method  
+s.calculate();  
+}  
+}  
+
+24)method overloading and overriding
+
+Both are types of Polymorphism
+
+If a class has multiple methods having same name but different in parameters, it is known as Method Overloading.
+Method overloading increases the readability of the program. Resolved at Compile time
+
+There are two ways to overload the method in java
+
+By changing number of arguments
+By changing the data type
+
+25)multithreading and where we use
+26)what is thread
+27)daeomon thread and difference between daemon thread and normal thread
+28)Can we set priority of thread?
+29)Garbage collector
+30)If I call gc, then it will impact the efficiency
+31)Exception, examples of checked and unchecked exceptions
+32)difference between errors and exceptions
+33)What are the different ways to handle exception and which is more efficient?
+34)try and finally
+35)can I write multiple finally bock
+36)default method in interface
+37)difference between spring and spring boot
+38)what are the annotations that you know?
+39)@Autowired
+  -> spring container will find object type in class path which matches the object on which @Autowired annoation is applied.
+     If that object is matches then it will inject that object.
+     Enables you to inject the object dependency implicitly.
+     It internally uses setter or constructor injection. Autowiring can't be used to inject primitive and string values. 
+     It works with reference only.
+40)@EnableAutoConfiguration
+  ->It enables the auto-configuration of SpringApplicationContext by scanning class path component and registering beans.
+41)Can I disable autoconfiguration? and how?
+   -> Yes
+       @Configuration(proxyBeanMethods = false)   
+       @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})  
+       public class MyConfiguration   
+       {  
+       }
+42)Spring accurator
+  -> Spring boot’s module Actuator allows you to monitor and manage application usages in production environment, without 
+     coding and configuration for any of them. 
+     These monitoring and management information is exposed via REST like endpoint URLs.
+  -><dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+   ->
+
+43)how to change the port of internal tomcat server
+44)caching
+45)there are multiple environments and accordingly there are multiple properties file. how you will handle that?
+46)when exception occurs in main method, how it is handled internally?
+47)microservices
+48)which verson java useing diff in 8 and 11
+49)project descripaiton old as well current  and long discussion on that
+50)api gatway
+->Zuul Server is an API Gateway application. It handles all the request and performs the dynamic routing of microservice application.
+  It acts like an front door for all microservices. In this scenario client is not directly contacting to certain microservice but client is
+  contacting to certain microservice through API Gateway.
+51)spring security
+52)kafka
+53)microservices communication
+   Using RestTemplate or FienClient
+54)servlet filter
+55)cacheing hibernate 2 level
+56)creteria in hibernate
+57)tcp connection and http connection diff
+58)get put patch post api diff
+59)what is optional
+60)controller and restcontroller diff   ->@Controller:- It will act like a component as well as it will provide facility related to mapping for MVC controller.
+   ->@RestController:- Combination of @Controller and @ResponseBody,
+                       @ReponseBody:-This annotation tells controller that object return will automatically seriallized into 
+                                     Jason and passed back into http response.
+
+61)jpa and hibernate diff
+
+Hibernate is a ORM-Object Relational Mapping tool   
+Hibernate is a implementation of JPA Interfaces so we can use JPA Annotation 
+
+Important Interfaces used in Hibernate
+
+SessionFactory- org.hibernate.SessionFactory;
+It is used to get session object.
+hibernate.cfg.xml
+<hibernate-configuration>
+	<session-factory>
+		<property name="connection.url">jdbc:sqlserver://localhost;databaseName=neon;instanceName=SQLEXPRESS</property>
+		<property name="connection.username">sa</property>
+		<property name="connection.password">password_123</property>
+		<property name="connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+		<property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
+	</session-factory>
+</hibernate-configuration>
+
+SessionFactory sf = new Configuration().configure("hibernate.cfg.xml")
+						.buildSessionFactory();
+						
+Session-  org.hibernate.Session
+It is used to connect with database and run CRUD operations
+		Session session=sf.openSession();
+		Transaction t=session.beginTransaction();
+		session.save(movie);
+		Query deleteQuery = session.createQuery("delete from Movie m where m.movieId=?1");
+		delQuery.setParameter(1, movieId);
+		int rows=delQuery.executeUpdate();
+		Query updateQuery = session.createQuery("update Movie m set m.movieName=?1,m.language=?2"
+				+ " where m.movieId=?3");
+		delQuery.setParameter(1, movie.getMovieName());
+		delQuery.setParameter(2, movie.getLanguage());
+		delQuery.setParameter(3, movie.getMovieId());
+		int rows=delQuery.executeUpdate();
+		Query selQuery = session.createQuery("select m from Movie m where m.movieId=?1");
+		selQuery.setParameter(1, movieId);
+		Movie movie=(Movie) selQuery.getResultList().get(0);
+		t.commit();
+		session.close();
+		sf.close();
+
+Transaction -  org.hibernate.Transaction
+
+It is used to run logical CRUD operations as single unit
+	
+
+Why Hibernate and not JDBC?
+Hibernate eliminates the Boiler plate code of JDBC
+Hibernate Query Language
+It provides Transaction Management Implicitly
+Hibernate throws JDBCException or HibernateException which are unchecked exceptions, so we dont need to handle it using try and catch
+It supports caching for better performance
+ 
+
+62)paging in jpa
+63)lamda expression
+64)constractor chaning
+  ->In constructor chain, a constructor is called from another constructor in the same class this process is known as constructor chaining.
+    Rules:-
+         An expression that uses this keyword must be the first line of the constructor
+         Order does not matter in constructor chaining.
+   public class ConstructorChain  
+   {   
+   ConstructorChain()  
+   {  
+   this("Javatpoint");  
+   System.out.println("Default constructor called.");  
+   }  
+   
+   ConstructorChain(String str)  
+   {  
+   System.out.println("Parameterized constructor called");  
+   }  
+
+   public static void main(String args[])   
+   {   
+   ConstructorChain cc = new ConstructorChain();   
+   }   
+   }  
+65)why you prefer java  in backend
+66)who is lite jsp and servlet
+67)list of annotation springboot u know
+   >@SpringBootAnnotation; @RestController; @Service; @Repository; @Autowired; @Requestbody; @PathVariable; @Query
+68)which version spring using
+69)if constractor override with one perameter is no args constractor can call or error?
+
+70)find max from person list  by age
+
+71)Write a query to retrieve the first four characters of EmpLname from the EmployeeInfo table . Only odd records
+
+select substr(EmpLname,1,4) from EmployeeInfo where rownum%2=1;
+
+72)DispatcherServlet
+73)Create Singleton class
+74)create immutable class
+75)Java Stream - map,filter
+76)Microservice communitcation - RestTemplate
+    >How do we use third party REST API in consumer application
+    >Means i wanted to use this consumer application in the client application, so that is called as REST Template.
+    >Rest Template is used to create applications that consume RESTful Web Services.
+
+    >Client should be anything for example, Angular, REACT JS or it may be .NET application, the consumer can be anything it also 
+     anroid or OS application
+
+    >It is nothing but to connect REST FULL webservices with ANY APPLICATION . TO talk a web service with another webservices for that
+     purpose we use REST Template.
+
+    >To call the end points we use REST Template;
+     api/v/{order_ID}/{customer_Id}
+
+    >RestTemplate is a class present in org.springframework.web.client.RestTemplate package. It is also GET, PUT, POST and Delete methods. So
+     it is webclient.
+77)Caching - redis 
+
+
+
+Angular
+--------------------------------------------------------------------------------------------------------------------------------
+1)What is directive
+Angular directive are used to extend the power of HTML by giving new syntax that can extend, change or modify behavior of DOM Elements
+
+There are 3 types of directives - Component, Structural and attribute
+
+Component Directive - <app-root></app-root>
+Structural Directive *ngFor,*ngIf and *ngSwitch - Alter the structure of the template
+
+*ngIf - built in structure directive starts with * , expression resloves to true or false.
+<div *ngIf="showMsg; then ifMsg else elseMsg"></div>
+<ng-template #ifMsg>If Statement</ng-template>
+<ng-template #elseMsg>Else Statement</ng-template>
+
+[ngSwitch]- to compare more than 1 expression
+<div [ngSwitch]="switchValue">
+  <div *ngSwitchCase="1">One</div>
+  <div *ngSwitchCase="2">Two</div>
+  <div *ngSwitchCase="3">Three</div>
+  <div *ngSwitchDefault>Not a option</div>
+</div>
+
+*ngFor
+
+<table class="table">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Index</th>
+    <th>First</th>
+    <th>Last</th>
+    <th>Even</th>
+    <th>Odd</th>
+
+  </tr>
+  <tr *ngFor="let user of users;index as i;first as f;last as l;even as e;odd as o">
+      <td>{{ user.id }}</td>
+      <td>{{ user.name }}</td>
+      <td>{{ i }}</td>
+      <td>{{ f }}</td>
+      <td>{{ l }}</td>
+      <td>{{ e }}</td>
+      <td>{{ o }}</td>
+  </tr>
+</table>
+
+Attribute Directive- [ngStyle],[ngClass] - alter the style of template
+
+<div [ngStyle]="{'color':colorVal}"> [ngStyle]</div>
+<div [ngClass]="[className1,className2]"> [ngClass]</div>
+<div [ngClass]="{'one':false,'two':true}"> [ngClass] Expression</div>
+
+
+Custom Directives
+ng generate directive <directive_name>
+
+2)What is module
+Modules are logical functionality like register user, add to cart, payment etc
+modules can have components, services, pipes, directives etc
+modular, easy to maintain, load on demand
+by default atleast one module should be there in angular app - AppModule
+declarations - define all the components used
+every module needs to be defined  by @NgModule decorator
+imports other modules like - browsermodule, AppRoutingModule
+
+custom module
+
+ng generate module todo // generate a module by name todo
+import TodoModule in AppModule imports
+
+Decorators
+1.TypeScript feature used for passing meta data
+2.Decorators are function that will return function.
+3.Invoked at runtime
+
+Types of decorators
+1.Class- @NgModule, @Component
+2.Property - @Input - parent -> child component comm, @Output child -> parent component comm
+3.Method - @HostListener
+4.Parameter - @Inject
+
+4)Diff bw promise and observable
+
+Observable is a sequence of data which is emitted asynchronously over a period of time.
+It is used for event handling, asynchrnous programming and handling multiple values.
+An observable can deliver multiple values of type - literals, messages or events
+
+Observer- 
+when we create observable , we keep track on the observable using observer.
+Observer continously listens to observable
+Observer has 3 methods - next(),error() and complete()
+
+Subscribe-
+An observable instances begins publishing data only when someone subscribes to it.
+
+toPromise-
+make a call and once you get data stop listening for more data changes.
+
+Observable
+	0. Observable are useless unless we subscribe to it 
+		-> Subscribe
+		-> toPromise
+		-> pipe
+		
+	1.How to create observables
+		1.1 Using RxJS "of" operator
+		1.2 new Observable
+		1.3 Always add $ sign to observable variables
+	2. where to create new Observables
+		->Unit test to mock data.
+	3.Observable and subscribe using http
+	
+		API and UI Integration
+		ByDefault Observable type is object
+
+5)what is parent and child
+
+6)What is routing
+
+Strategy
+
+PathLocation - default HTML 5 push state URL - 
+http://localhost:4200/dashboard
+http://localhost:4200/user/10
+http://localhost:4200/user/10/photos
+http://localhost:4200/search?query=abc&state=ka&city=bangalore
+
+
+HashLocation - 
+
+import { LocationStrategy } from '@angular/common'; //in app module.ts
+in Providers array 
+[{ provide: LocationStrategy, useClass: HashLocationStrategy}]
+
+http://localhost:4200/#/dashboard
+http://localhost:4200/#/user/10
+http://localhost:4200/#/user/10/photos
+http://localhost:4200/#/search?query=abc&state=ka&city=bangalore
+
+Base Href - is bydefault / in index.html
+<base href="/">
+
+<a [routerLink]="['/user',user.id]">Edit</a>
+
+7)what is compilation
+
+8)AOT and JIT
+
+9)What is pipe and how can create custom pipe
+Pipes are used to transform data to desired format in template  using pipe operator (|)
+
+Built In Pipes
+date - <div>{{ dateVal | date: 'MM-dd-YYY'}}</div>
+lowercase - <div>{{ username | lowercase}}</div>
+uppercase - <div>{{ username | uppercase}}</div>
+currency - <div>{{ currenyVal | currency: 'INR'}}</div>
+percent - <div>{{ percentVal | percent: '3.1-4'}}</div>
+json - 
+
+Parametrized pipe
+date, percent,currency
+
+Chaining pipe - multiple pipe on data input
+<div>{{ dateVal | date | uppercase}}</div>
+
+Custom pipe - override tranform method (implement Interface PipeTransform)
+
+1.ng generate pipe highlight
+2.Import pipe in app module
+3.
+import { Pipe, PipeTransform } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
+
+@Pipe({
+  name: 'highlight',
+  pure: true
+})
+export class HighlightPipe implements PipeTransform {
+
+  constructor(private domSanitizer:DomSanitizer){
+
+  }
+  transform(value: string, city:string): any {
+    return this.domSanitizer.bypassSecurityTrustHtml(
+      '<div style="background-color:#ffffcc">'+city+'<div>');
+  }
+
+}
+
+<div [innerHTML]='city | highlight:city'></div>
+
+usecases
+1) Formating phonenumbers
+2) highlight
+
+By default, pipes in angular are pure pipes. Custom pipes can be defined as pure pipes by turning the pure flag to true of the @Pipe decorator.
+Pure pipes detect changes only when there is a change to primitive types or object reference. 
+Pure pipes optimize the angular change detection cycle because checking primitive values or object references is much faster than detecting a change within an object. 
+Impure pipes execute every time the change detection runs regardless of input value has changed or not. So, now the code runs on every mouse or keyboard event; this may overuse system resources. If the pipe is heavy, it will degrade the application’s performance.
+
+10)What is ngModel
+
+11)What is binding and how we can achieve
+The HTML attribute value specifies the initial value; the DOM value property is the current value.
+
+Types of data binding
+
+Angular provides three categories of data binding according to the direction of data flow:
+From source to view - one way
+From view to source - one way
+In a two-way sequence of 
+
+1.one way data binding 
+Component to view []:
+Interpolation - {{title}} 
+property binding - <div [innerHtml]="propertyBinding"></div> - Property preffered compared to attribute binding
+attribute binding -<td [attr.colspan]="colVal">{{ i }}</td>
+style binding - <div [style.color] ="colorVal">Style Binding</div>
+
+view to component ():
+event binding - <button (click)="updateMsg()" >Click Me</button>
+
+2.two way data binding - view to source and source to view [()] - combination of property binding and event binding
+Import FormsModule in AppModule
+
+<input [(ngModel)] ="username"/>
+{{username}}
+12)How to jamine and krama testcases
+13)What is intecerptor and how you pass tokens to your api
+14)Angular Life cycle hooks
+A component is a small functionality which can we reused multiple time in application
+AppComponent is root component which is by default
+@Component Class decorator is used to define component with below metadata
+@Component({
+	selector:'app-root',
+	templateUrl:'',
+	styleUrl:''
+})
+
+ng generate component task // to generate component named task
+It will automatically update parent module.ts file and import the new component
+
+In Angular, every component has a life-cycle, a number of different stages it goes through from initializing to destroying. There are 8 different stages in the component lifecycle. Every stage is called  life cycle hook events.
+After executing the constructor, Angular executes its life cycle hook methods in a specific order.
+
+ngOnChanges() - imp
+Called whenever input value changes
+It is called first time before ngOnInit() 
+
+ngOnInit() - imp
+Used to initialize data in a component.
+Called only once bydefault.
+http calls  and subscribe methods
+
+ngDoCheck()
+Called during all change detection runs
+	ngAfterContentInit()
+	Called only once after first ngDoCheck()
+
+	ngAfterContentChecked()
+	Called after every ngDoCheck()
+
+	ngAfterViewInit() -imp
+	Called after angular initializes component and child component. called only once after view is initialized
+
+	ngAfterViewChecked()
+	called after all content is initalized and checked
+	Called after every ngAfterContentChecked()
+ngOnDestroy() - imp
+Used to clean up / unsubscribe services before the component is removed from DOM
+
+15)how to angular do lazy loading and how we can do custom lazy loading
+
+Lazy Loading-
+It is a design pattern that load NgModule as needed.
+
+1)There should be no entry in app module
+2)ng g module <module_name> --route <module_route> --module app.module
+ng g module payments --route payments --module app.module 
+3) app-routing module
+  { path: 'payments', loadChildren: () => import('./payments/payments.module').then(m => m.PaymentsModule) },
+4) update routes in payments-routing.module
+
+16)if your angular project is working slow, how wil you improve it
+17)difference between angularJS and angular
+18)Do Code in angualr call a get api and parse it json data and show on ui
+
+i. Create a service 
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+@Injectable({
+  providedIn: 'root'
+})
+export class EmployeeService {
+
+  private BASE_URL: string = 'http://localhost:8081/';
+
+  constructor(private http:HttpClient) { }
+
+  public getEmployeeData():Observable<any> {
+      return this.http.get(this.BASE_URL + 'getEmpDetails/'+sessionStorage.getItem('emp_id'));
+	}
+}
+ii. create a model class
+export class EmployeeData {
+    public title!: string;
+    public firstName!: string;
+    public lastName!: string;
+    public qualification!: string;
+    public department!: string;
+ }
+ 
+iii. call the service from component class
+
+import { Component, OnInit } from '@angular/core';
+import { FormGroup,FormControl, Validators } from '@angular/forms';
+import { EmployeeData } from 'src/app/model/EmployeeData';
+import { EmployeeService } from '../../services/EmployeeService.service';
+
+
+@Component({
+  selector: 'app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.css']
+})
+export class EmployeeComponent implements OnInit {
+
+    public title!: string;
+    public firstName!: string;
+    public lastName!: string;
+    public qualification!: string;
+    public department!: string;
+	public empData!:EmployeeData;
+
+
+
+  constructor(private _empService:EmployeeService) { }
+
+  ngOnInit(): void {
+    this.fetchEmpData();
+  }
+   
+  fetchEmpData() {
+
+    this._empService.getEmployeeData().subscribe(
+      (data :any)=>{ 
+        console.log(data);
+        this.empData = data;
+        this.title=this.empData.title;
+        this.firstName=this.empData.firstName;
+        this.lastName=this.empData.lastName;
+        this.qualification=this.empData.qualification;
+        this.department=this.empData.specialization;
+      },
+      (error :any)=>{
+        console.log("error",error); 
+      }
+    )
+  }
+}
+
+iv. use interpolation to show data on UI {{}}
+
+19)call back method in javascript
+20)spread in javascript
+21)Component communication -> Services & subject
+
+Component Communication:
+-----------------------------------
+
+  * We can have nested components.
+  * How can we pass the data from parent -> child component or child -> parent component?
+
+     @Input(),  @Output() and EventEmitter,  @ViewChild() 
+
+   1) Parent -> Child
+   ------------------------
+
+      a) In a child component, create a data member decorated with @Input() decorator.
+      b) While rendering child component from parent component, use the child component data member to pass the data. (use property binding)
+ 
+             <app-child [name]="" ></app-child>
+
+   
+     2) Child -> Parent
+    ------------------------
+    
+          a) Create an EventEmitter instance / object decorated with @Output() decorator in a child component.
+
+               * EventEmitter is a typescript class and is generic class. It allows you to emit custom events.
+
+          b) Child component emits an event, passing the data to parent component. Data is passed within an event.
+          c) Parent component has to subscribe to that event which is emitted by child component. Parent can extract the data from event.
+
+           Q. How Parent component subscribes to that event?
+           ----------------------------------------------------------------
+  
+
+   3) @ViewChild():
+  ----------------------
+          -- It gives access to the child component instance at runtime and then invoke any function of child component.
+             For eg. If we have a method in a child component and we have to call that method from parent component, then we can make a use of @ViewChild() decorator.
+
+           a) If we want to access any property of a class (component, directive, service) or invoke a function, then we can make use of @ViewChild()    
+           b) No need to have parent-child relationship.
+
+22)Change detection
+23)multiple types of function declaration in JS and there diff
+24)Angular dev Tool / Chrome dev tool -> profiling and performance 
+25)local storage vs Session Storage
+26)caching images and resources Security measures in angular 
+27)hosting 
+
+
+

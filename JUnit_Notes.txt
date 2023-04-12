@@ -1,0 +1,12 @@
+@Test :
+The method which needs to be tested is annotated with @Test.
+________________________________________________________________
+@BeforeEach & @AfterEach :
+It is a lifecylcle method for each test case method
+
+@AfterEach
+To realise the resources what we are using
+________________________________________________________________
+@BeforeAll & @ AfterAll :
+This is a class level method.
+Before this test case class is executed only once this called

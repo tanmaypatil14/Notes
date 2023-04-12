@@ -1,0 +1,23 @@
+When you are using an interface to declare an lambda expression that interface should have only one method and that method should be
+same method signature.
+If we created more than one method mdg we get -> 'The target type of this expression must be a functional interface'.
+---------------------------------------------
+What is anonymous inner class?
+The class which is defined inside another class and it doesn't have a name, this is called as anonymous inner class.
+
+public class Greeter {
+	public static void main(String[] args) {
+
+		Greeting greeting = () -> System.out.println("Hello World...!"); 
+		greeting.perform();
+
+                Greeting getHelloWorldGreeting = new Greeting() {
+                      public void perform() {
+                          System.out.println("Hello World..!");
+                      }
+                };
+                getHelloWorldGreeting.perform();
+	}
+
+}
+--------------------------------------------

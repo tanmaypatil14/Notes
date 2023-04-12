@@ -1,0 +1,233 @@
+USE AdventureWorks2019;
+
+SELECT * FROM Production.Product;
+
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE Color = 'Black' AND ProductSubcategoryID IN (6, 12);
+-------------------------------------------------------------------------------------------------------------
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE ProductSubcategoryID <> 12;
+
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE ProductSubcategoryID != 12;
+
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE ProductSubcategoryID NOT IN (12);
+-------------------------------------------------------------------------------------------------------------
+--Handling Null values
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE Color IS NULL AND ProductSubcategoryID IS NULL;
+
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE Color IS NOT NULL;
+-------------------------------------------------------------------------------------------------------------
+--Get all the records which starts with letter Ch
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE Name LIKE 'Ch%';
+--Get all the records which ends with letter d
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE Name LIKE '%d';
+--Get all the products which have ball in its name
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE Name LIKE '%Ball%';
+--Get all the products which starts with letter a to c
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE Name LIKE '[a-c]%';
+------------------------------------------------------------------------------------------------------------
+--Get all the black products costing more than 1000 and less than 2000
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE Color = 'Black' AND (StandardCost > 1000 AND StandardCost < 2000);
+
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+WHERE Color = 'Black' AND (StandardCost BETWEEN 1000 AND 2000);
+------------------------------------------------------------------------------------------------------------
+
+SELECT * FROM HumanResources.Employee;
+
+SELECT BusinessEntityID, NationalIDNumber, LoginID, JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours
+FROM HumanResources.Employee;
+
+--Get all the single employees
+SELECT BusinessEntityID, NationalIDNumber, LoginID, JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours
+FROM HumanResources.Employee
+WHERE MaritalStatus = 'S';
+
+--Get all the non single employees
+SELECT BusinessEntityID, NationalIDNumber, LoginID, JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours
+FROM HumanResources.Employee
+WHERE MaritalStatus <> 'S';
+
+--Get all the single female employees
+SELECT BusinessEntityID, NationalIDNumber, LoginID, JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours
+FROM HumanResources.Employee
+WHERE Maritalstatus = 'S' AND Gender = 'F';
+
+--Get all the single male employees taken sick leaves more than 50 hrs
+SELECT BusinessEntityID, NationalIDNumber, LoginID, JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours
+FROM HumanResources.Employee
+WHERE MaritalStatus = 'S' AND Gender = 'M' AND SickLeavehours > 50;
+
+--Get all the employees born on 7th of jan 1983
+SELECT BusinessEntityID, NationalIDNumber, LoginID, JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours
+FROM HumanResources.Employee
+WHERE BirthDate = '7-Jan-1983';
+
+--get all the employees born before 1983
+SELECT BusinessEntityID, NationalIDNumber, LoginID, JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours
+FROM HumanResources.Employee
+WHERE BirthDate < '1980';
+
+SELECT BusinessEntityID, NationalIDNumber, LoginID, JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours
+FROM HumanResources.Employee
+WHERE YEAR(BirthDate) < '1980';
+
+--CASE
+SELECT BusinessEntityID, NationalIDNumber, LoginID, JobTitle, BirthDate, MaritalStatus, 
+CASE Gender 
+     WHEN 'M' THEN 'Male'
+	 WHEN 'F' THEN 'Female'
+	 ELSE 'Unknown'
+END AS [Gender], HireDate, SickLeaveHours
+FROM HumanResources.Employee;
+----------------------------------------------------------------------------------------------------------
+SELECT ProductNumber + '**' + Name + ' (' + CONVERT(VARCHAR(20), StandardCost) + ')' AS [Product Details]
+FROM Production.Product;
+
+SELECT CONCAT(ProductNumber, '**', Name, ' (', StandardCost, ')') AS [Products]
+FROM Production.Product;
+------------------------------------------------------------------------------------------------------------
+--sorting
+SELECT ProductID, Name, ProductNumber, Color, StandardCost FROM Production.Product
+
+--sort by name by default ASC
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+ORDER BY Name;
+--sort by name IN DESC
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID FROM Production.Product
+ORDER BY Name DESC;
+--------------------------------------------------------------------------------------------------------------
+--Get total cost of all products
+SELECT SUM(StandardCost) AS [Total Cost] FROM Production.Product;
+-- count total products
+SELECT COUNT(*) FROM Production.Product 
+WHERE Color = 'Red';
+-------------------------------------------------------------------------------------------------------------
+--Get colorwise sum of standard cost for the products
+SELECT COLOR, SUM(StandardCost) AS [Total Cost] FROM Production.Product
+GROUP BY Color;
+--Get colorwise count of product
+SELECT Color, COUNT(*) AS [Color Count] FROM Production.Product
+GROUP BY Color;
+--------------------------------------------------------------------------------------------------------------
+--get distict count of employees based on gender
+--BusinessEntityID, NationalIDNumber, LoginID, JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours
+SELECT Gender, COUNT(*)
+FROM HumanResources.Employee
+GROUP BY Gender;
+--get distict count of employees based on gender and marital status
+SELECT Gender, MaritalStatus, COUNT(*)
+FROM HumanResources.Employee
+GROUP BY Gender, MaritalStatus;
+--------------------------------------------------------------------------------------------------------------
+--OVER clause
+--List all the products with total cost for all products
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID,
+SUM(StandardCost) OVER() AS [Total cost]
+FROM Production.Product;
+--List all the products colorwise total cost of all the products
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID,
+SUM(StandardCost) OVER(PARTITION BY Color) AS [Total cost]
+FROM Production.Product;
+--------------------------------------------------------------------------------------------------------------
+-- Get costliest product
+--Solution 1:: SubQuesry
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID
+FROM Production.Product
+WHERE StandardCost = (
+    SELECT MAX(StandardCost) FROM Production.Product
+);
+--Solution 2:: limit -- Not a appropriate solution
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID
+FROM Production.Product
+ORDER BY StandardCost DESC
+OFFSET 0 ROWS
+FETCH NEXT 5 ROWS ONLY;
+--------------------------------------------------------------------------------------------------------------
+--Ranking Fuctions
+SELECT ProductID, Name, ProductNumber, Color, StandardCost,
+ROW_NUMBER() OVER(ORDER BY StandardCost DESC) AS [ROW Number],
+RANK() OVER(ORDER BY StandardCost DESC) AS [RANK],
+DENSE_RANK() OVER(ORDER BY StandardCost DESC) AS [DENSE RANK]
+FROM Production.Product;
+--
+SELECT ProductID, Name, ProductNumber, Color, StandardCost,
+DENSE_RANK() OVER(ORDER BY StandardCost DESC) AS [DENSE RANK]
+FROM Production.Product;
+
+--------------------------------------------------------------------------------------------------------------
+--Get the costliest product and nth costliest product
+SELECT * FROM (
+SELECT ProductID, Name, ProductNumber, Color, StandardCost,
+DENSE_RANK() OVER(ORDER BY StandardCost DESC) AS [Dense Rank]
+FROM Production.Product
+) AS Products
+WHERE [Dense Rank] = 3;
+
+--------------------------------------------------------------------------------------------------------------
+--get the employees who have taken least number of leaves
+SELECT BusinessEntityID,JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours,
+DENSE_RANK()OVER(PARTITION BY Jobtitle ORDER BY SickLeaveHours) AS [Dense Rank]
+FROM HumanResources.Employee;
+
+SELECT * FROM (
+SELECT BusinessEntityID,JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours,
+DENSE_RANK()OVER(ORDER BY SickLeaveHours) AS [Dense Rank]
+FROM HumanResources.Employee) AS Employees
+WHERE [Dense Rank] = 1;
+--get the employees titlewise who have taken least number of leaves
+SELECT * FROM (
+SELECT BusinessEntityID,JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours,
+DENSE_RANK()OVER(PARTITION BY Jobtitle ORDER BY SickLeaveHours) AS [Dense Rank]
+FROM HumanResources.Employee) AS Employees
+WHERE [Dense Rank] = 1;
+--get all the male and female employees who have taken least number of leaves
+SELECT * FROM (
+SELECT BusinessEntityID,JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours,
+DENSE_RANK()OVER(PARTITION BY Gender ORDER BY SickLeaveHours) AS [Dense Rank]
+FROM HumanResources.Employee) AS Employees
+WHERE [Dense Rank] = 1;
+-----------------------------------------------------------------------------------------------------------------
+--NTILE
+SELECT BusinessEntityID,JobTitle, BirthDate, MaritalStatus, Gender, HireDate, SickLeaveHours,
+NTILE(4)OVER(ORDER BY SickLeaveHours) AS [Dense]
+FROM HumanResources.Employee;
+--------------------------------------------------------------------------------------------------------------------------
+--/* JOIN */
+SELECT ProductID, Name, ProductNumber, Color, StandardCost, ProductSubcategoryID
+FROM Production.Product 
+WHERE ProductSubcategoryID IS NOT NULL;
+
+SELECT ProductSubcategoryID, Name 
+FROM Production.ProductSubcategory;
+
+-- GET THE details of products with respective to name of ProductSubcategory only if the product belongs to any subcategory	(inner join)
+
+SELECT ProductID,PRD.Name, ProductNumber, Color, StandardCost, PSC.Name FROM
+Production.Product PRD INNER JOIN Production.ProductSubcategory PSC
+ON PRD.ProductSubcategoryID = PSC.ProductSubcategoryID;
+--
+
+SELECT ProductID,PRD.Name, ProductNumber, Color, StandardCost, PSC.Name,PRD.ProductSubcategoryID,PSC.ProductSubcategoryID FROM
+Production.Product PRD INNER JOIN Production.ProductSubcategory PSC
+ON PRD.ProductSubcategoryID = PSC.ProductSubcategoryID
+WHERE PSC.rowguid = '000310C0-BCC8-42C4-B0C3-45AE611AF06B';
+-- GET THE details of products with respective to name of ProductSubcategory (outer join)
+SELECT ProductID,PRD.Name, ProductNumber, Color, StandardCost, PSC.Name,PRD.ProductSubcategoryID,PSC.ProductSubcategoryID FROM
+Production.Product PRD LEFT OUTER JOIN Production.ProductSubcategory PSC
+ON PRD.ProductSubcategoryID = PSC.ProductSubcategoryID;
+----------------------------------------------------------------------------------------------------------------------------------
+--Having clause
+SELECT Color, Count(*)
+FROM Production.Product
+GROUP BY Color
+ORDER BY Color;

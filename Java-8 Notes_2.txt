@@ -1,0 +1,27 @@
+Streams:-
+>it temporary changes the data
+>Don't stores the data
+>Using streams we process the collection object
+>methods:- stream(), filter(), map(), collect(), count(), sorted()
+---------------------------------------------------------------------------------
+Collection:-
+>It reflects changes on data
+>Stores the data
+>it is the collection of individual entity
+---------------------------------------------------------------------------------
+>stream method is a part of collection interface and it is also a Stream interface
+---------------------------------------------------------------------------------
+>Example: Suppose if company wants to give bonus for those employees stayed more than 5 years in company.
+          If i want to lock the login, if someone entered wrong password 3 times
+---------
+In stream we map and filter methods;
+
+map(Function<T,R> function) [this method is used to operate some operation] 
+     arrayList.stream().map(I -> I +5).collect(Collectors.toList());
+and 
+filter(predicate<T> predicate)[this method is used valid data]
+     arrayList.stream().filter(I -> I%2==0).collect(Collectors.toList());
+
+https://www.youtube.com/watch?v=5duxFiseLRE
+
+
